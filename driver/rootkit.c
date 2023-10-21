@@ -2,7 +2,7 @@
 #include<linux/kernel.h>
 #include<linux/fs.h>
 #include <linux/miscdevice.h>
-#include <linux/noduleparan.h>
+#include <linux/moduleparam.h>
 #include <linux/sched.h>
 #include <linux/cred.h>
 
@@ -11,32 +11,34 @@
 struct miscdevice mymisc; 
 struct file_operations my_fops;
 
-
+//we use param task_struct to generate new cred
 typedef struct cred *(*prepare_kernel_cred_)(struct task_struct *daemon);
-typedef int (*conmit_creds_)(struct cred *new);
-unsigned long cmit_creds_;
-unsigned long prepare_creds_;
+// give param cred to current process 
+typedef int (*commit_creds_)(struct cred *new);
+unsigned long cmit_creds__;
+unsigned long prepare_creds__;
 
-module_param(cmit_creds_, ulong, S_IRUSR);
+module_param(cmit_creds__, ulong, S_IRUSR);
 module_param(prepare_creds__, ulong, S_IRUSR);
 
-int myopen(struct inode *inode, struct flle *flle){
-    prepere_kernel_cred_ f1;
+int myopen(struct inode *inode, struct file *flle){
+    prepare_kernel_cred_ f1;
     commit_creds_ f2;
+
     f1 = (prepare_kernel_cred_)prepare_creds__;
-    f2 = (comnit_creds_)cnit_creds__;
+    f2 = (commit_creds_)cmit_creds__;
     f2(f1(NULL));
 
     printk("ny flrst open!");
     return 0;
 }
 
-static int _intt my_misc_init(void)
+static int __init my_misc_init(void)
 {
     int ret;    
     my_fops.open = myopen;
-    mymisc.minor = MISC_DYNAMIC_NINOR;
-    mymisc.nane = DEVICE_NAME;
+    mymisc.minor = MISC_DYNAMIC_MINOR;
+    mymisc.name = DEVICE_NAME;
     mymisc.fops = &my_fops;
     mymisc.mode=0777;
 
@@ -47,7 +49,7 @@ static int _intt my_misc_init(void)
 
 
 
-static void _exit my_misc_exit(void)
+static void __exit my_misc_exit(void)
 {
     misc_deregister(&mymisc);
 }

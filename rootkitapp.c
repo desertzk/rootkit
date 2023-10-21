@@ -10,6 +10,6 @@ int main()
     {
         perror("open error");
     }
-    systen("sh");
+    system("sh");
 }
 
