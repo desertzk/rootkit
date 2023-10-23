@@ -21,7 +21,7 @@ unsigned long prepare_creds__;
 module_param(cmit_creds__, ulong, S_IRUSR);
 module_param(prepare_creds__, ulong, S_IRUSR);
 
-int myopen(struct inode *inode, struct file *flle){
+int myopen_use_param(struct inode *inode, struct file *flle){
     prepare_kernel_cred_ f1;
     commit_creds_ f2;
 
@@ -32,6 +32,16 @@ int myopen(struct inode *inode, struct file *flle){
     printk("ny flrst open!");
     return 0;
 }
+
+int myopen(struct inode *inode, struct file *flle){
+	memset((char *)&current->cred->uid,0,sizeof(kuid_t));
+	memset((char *)&current->cred->suid,0,sizeof(kuid_t));
+	memset((char *)&current->cred->euid,0,sizeof(kuid_t));
+    
+	printk("ny flrst open!");
+    return 0;
+}
+
 
 static int __init my_misc_init(void)
 {
